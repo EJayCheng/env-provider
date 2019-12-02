@@ -1,7 +1,11 @@
 import { safeJsonParse } from "@ay/util";
 
 export function int(key: string, defaultValue: any = undefined): number {
-  return parseInt(process.env[key]) || defaultValue;
+  const value = parseInt(process.env[key]);
+  if (isNaN(value)) {
+    return defaultValue;
+  }
+  return value;
 }
 
 export function str(key: string, defaultValue: any = undefined): string {
