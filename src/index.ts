@@ -1,9 +1,15 @@
 import { safeJsonParse } from "@ay/util";
 
-const env = process ? process.env : window["env"];
+let env = (key: string) => {
+  try {
+    return process.env[key];
+  } catch (error) {
+    return window["env"][key];
+  }
+};
 
 export function int(key: string, defaultValue: any = undefined): number {
-  const value = parseInt(env[key]);
+  const value = parseInt(env(key));
   if (isNaN(value)) {
     return defaultValue;
   }
@@ -11,15 +17,17 @@ export function int(key: string, defaultValue: any = undefined): number {
 }
 
 export function str(key: string, defaultValue: any = undefined): string {
-  return env[key] || defaultValue;
+  return env(key) || defaultValue;
 }
 
 export function bool(key: string, defaultValue: any = undefined): boolean {
-  const value = (env[key] + "").toUpperCase();
-  if (value === "") return defaultValue;
+  const value = (env(key) + "").toUpperCase();
+  if (value === "" || value === "UNDEFINED" || value === "NULL") {
+    return defaultValue;
+  }
   return ["YES", "1", "TRUE", "ON", "Y", "O", "T"].includes(value);
 }
 
 export function json(key: string, defaultValue: any = null): any {
-  return safeJsonParse(env[key], defaultValue);
+  return safeJsonParse(env(key), defaultValue);
 }
