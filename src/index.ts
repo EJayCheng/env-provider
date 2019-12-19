@@ -4,7 +4,11 @@ let env = (key: string) => {
   try {
     return process.env[key];
   } catch (error) {
-    return window["env"][key];
+    try {
+      return window["env"][key];
+    } catch (error) {
+      return undefined;
+    }
   }
 };
 
