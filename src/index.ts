@@ -29,7 +29,7 @@ export function strs(key: string, defaultValue?: string[]): string[] {
   if (typeof val !== "string") return defaultValue;
   return val
     .split(",")
-    .map(s => s.trim())
+    .map((s) => s.trim())
     .filter(Boolean);
 }
 
@@ -38,8 +38,8 @@ export function ints(key: string, defaultValue?: number[]): number[] {
   if (typeof val !== "string") return defaultValue;
   return val
     .split(",")
-    .map(s => parseInt(s))
-    .filter(n => !isNaN(n));
+    .map((s) => parseInt(s))
+    .filter((n) => !isNaN(n));
 }
 
 export function bool(key: string, defaultValue?: boolean): boolean {
