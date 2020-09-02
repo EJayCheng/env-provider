@@ -45,7 +45,7 @@ export function strs(
   if (typeof val !== "string") return defaultValue;
   return val
     .split(",")
-    .map(s => s.trim())
+    .map((s) => s.trim())
     .filter(Boolean);
 }
 
@@ -59,8 +59,8 @@ export function ints(
   if (typeof val !== "string") return defaultValue;
   return val
     .split(",")
-    .map(s => parseInt(s))
-    .filter(n => !isNaN(n));
+    .map((s) => parseInt(s))
+    .filter((n) => !isNaN(n));
 }
 
 export function bool(
@@ -79,6 +79,23 @@ export function bool(
 export function json(key: string, defaultValue?: any, desc?: string): any {
   addToEnvMap(key, defaultValue, desc);
   return safeJsonParse(env(key), defaultValue);
+}
+
+export function array(
+  key: string,
+  defaultValue?: any,
+  desc?: string
+): string[] {
+  addToEnvMap(key, defaultValue, desc);
+  const array = [];
+  let index = 1;
+  do {
+    const value = str(`${key}_${index}`);
+    if (!value) break;
+    array.push(value);
+    index++;
+  } while (1);
+  return array;
 }
 
 export function addToEnvMap(key: string, defaultValue?: any, desc?: string) {
@@ -109,6 +126,10 @@ export class Provider {
   public static strs(provide: string, defaultValue?: string[], desc?: string) {
     return { provide, useValue: strs(provide, defaultValue, desc) };
   }
+
+  public static array(provide: string, defaultValue?: string[], desc?: string) {
+    return { provide, useValue: array(provide, defaultValue, desc) };
+  }
 }
 
 export function exportConfigMap(
@@ -127,7 +148,7 @@ data:
   ${Object.keys(ENV_CONFIGS)
     .sort()
     .map(
-      key => `${key}: ${JSON.stringify(ENV_CONFIGS[key].defaultValue || "")}`
+      (key) => `${key}: ${JSON.stringify(ENV_CONFIGS[key].defaultValue || "")}`
     )
     .join("\n  ")}`;
 
@@ -142,7 +163,7 @@ export function exportMD(path: string) {
 ${Object.keys(ENV_CONFIGS)
   .sort()
   .map(
-    key => `| ${key} | ${JSON.stringify(
+    (key) => `| ${key} | ${JSON.stringify(
       ENV_CONFIGS[key].defaultValue || ""
     )} | ${ENV_CONFIGS[key].desc || ""} |
 `
