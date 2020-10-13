@@ -163,7 +163,7 @@ export function exportMD(path: string) {
 ${Object.keys(ENV_CONFIGS)
   .sort()
   .map(
-    (key) => `| ${key} | ${JSON.stringify(
+    (key) => `| ${key} | ${JSON.stringify(
       ENV_CONFIGS[key].defaultValue || ""
     )} | ${ENV_CONFIGS[key].desc || ""} |
 `
