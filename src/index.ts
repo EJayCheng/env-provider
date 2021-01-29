@@ -99,36 +99,38 @@ export function array(
 }
 
 export function addToEnvMap(key: string, defaultValue?: any, desc?: string) {
-  if (!ENV_CONFIGS[key]) ENV_CONFIGS[key] = { defaultValue, desc };
+  if (!ENV_CONFIGS[key]) {
+    ENV_CONFIGS[key] = { defaultValue, desc };
+  }
 }
 
 export class Provider {
   public static json(provide: string, defaultValue?: any, desc?: string) {
-    return { provide, useValue: json(provide, defaultValue, desc) };
+    return { provide, useFactory: () => json(provide, defaultValue, desc) };
   }
 
   public static bool(provide: string, defaultValue?: boolean, desc?: string) {
-    return { provide, useValue: bool(provide, defaultValue, desc) };
+    return { provide, useFactory: () => bool(provide, defaultValue, desc) };
   }
 
   public static str(provide: string, defaultValue?: string, desc?: string) {
-    return { provide, useValue: str(provide, defaultValue, desc) };
+    return { provide, useFactory: () => str(provide, defaultValue, desc) };
   }
 
   public static int(provide: string, defaultValue?: number, desc?: string) {
-    return { provide, useValue: int(provide, defaultValue, desc) };
+    return { provide, useFactory: () => int(provide, defaultValue, desc) };
   }
 
   public static ints(provide: string, defaultValue?: number[], desc?: string) {
-    return { provide, useValue: ints(provide, defaultValue, desc) };
+    return { provide, useFactory: () => ints(provide, defaultValue, desc) };
   }
 
   public static strs(provide: string, defaultValue?: string[], desc?: string) {
-    return { provide, useValue: strs(provide, defaultValue, desc) };
+    return { provide, useFactory: () => strs(provide, defaultValue, desc) };
   }
 
   public static array(provide: string, defaultValue?: string[], desc?: string) {
-    return { provide, useValue: array(provide, defaultValue, desc) };
+    return { provide, useFactory: () => array(provide, defaultValue, desc) };
   }
 }
 
