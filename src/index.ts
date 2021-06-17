@@ -56,6 +56,17 @@ function setEnvConfig(key: string, type: string, config: EnvConfig = {}): void {
   ENV_CONFIGS.set(key, config);
 }
 
+function getFunctionName(): string {
+  let err = new Error();
+  let stack = err.stack.split("\n")[2];
+  try {
+    return /at\s(object\.)*(\w+)\s\(/gi.exec(stack)[2];
+  } catch (error) {
+    console.error("Error getFunctionName:", stack);
+    throw error;
+  }
+}
+
 function verifyEnvByConfig(value: any, config: EnvConfig): any {
   let { key } = config;
   let type = config.type;
@@ -165,7 +176,7 @@ export function env(key: string): string {
 }
 
 export function int(key: string, config: EnvConfig<number> = {}): number {
-  setEnvConfig(key, arguments.callee.name, config);
+  setEnvConfig(key, getFunctionName(), config);
   const value = parseInt(env(key));
   if (isNaN(value)) {
     return verifyEnvByConfig(config?.defaultValue, config);
@@ -174,13 +185,13 @@ export function int(key: string, config: EnvConfig<number> = {}): number {
 }
 
 export function str(key: string, config: EnvConfig<string> = {}): string {
-  setEnvConfig(key, arguments.callee.name, config);
+  setEnvConfig(key, getFunctionName(), config);
   return verifyEnvByConfig(env(key) || config?.defaultValue, config);
 }
 
 /** a,b,c,,d,5 => ["a", "b", "c", "d", "5"] */
 export function strs(key: string, config: EnvConfig<string[]> = {}): string[] {
-  setEnvConfig(key, arguments.callee.name, config);
+  setEnvConfig(key, getFunctionName(), config);
   let value = str(key);
   if (typeof value !== "string") {
     return verifyEnvByConfig(config?.defaultValue || [], config);
@@ -194,7 +205,7 @@ export function strs(key: string, config: EnvConfig<string[]> = {}): string[] {
 
 /** 1,2,3,a,,5 => [1, 2, 3, 5] */
 export function ints(key: string, config: EnvConfig<number[]> = {}): number[] {
-  setEnvConfig(key, arguments.callee.name, config);
+  setEnvConfig(key, getFunctionName(), config);
   let value = str(key);
   if (typeof value !== "string") {
     return verifyEnvByConfig(config?.defaultValue || [], config);
@@ -207,7 +218,7 @@ export function ints(key: string, config: EnvConfig<number[]> = {}): number[] {
 }
 
 export function bool(key: string, config: EnvConfig<boolean> = {}): boolean {
-  setEnvConfig(key, arguments.callee.name, config);
+  setEnvConfig(key, getFunctionName(), config);
   const value = (env(key) + "").toUpperCase();
   if (value === "" || value === "UNDEFINED" || value === "NULL") {
     return config?.defaultValue;
@@ -216,7 +227,7 @@ export function bool(key: string, config: EnvConfig<boolean> = {}): boolean {
 }
 
 export function json(key: string, config: EnvConfig = {}): any {
-  setEnvConfig(key, arguments.callee.name, config);
+  setEnvConfig(key, getFunctionName(), config);
   let value = safeJsonParse(env(key), config?.defaultValue);
   return verifyEnvByConfig(value, config);
 }
@@ -228,7 +239,7 @@ export function json(key: string, config: EnvConfig = {}): any {
  * => ["test", "1234"]
  */
 export function array(key: string, config: EnvConfig<string[]> = {}): string[] {
-  setEnvConfig(key, arguments.callee.name, config);
+  setEnvConfig(key, getFunctionName(), config);
   let array = [];
   let zero = str(`${key}_0`);
   if (zero) {
@@ -279,14 +290,14 @@ export class Provider {
   }
 }
 
+/** only support nodejs */
 export function exportConfigMap(
   path: string,
   name: string,
   namespace: string,
   apiVersion: string = "v1"
-) {
-  let configMap = `
-apiVersion: ${apiVersion}
+): void {
+  let configMap = `apiVersion: ${apiVersion}
 kind: ConfigMap
 metadata:
   name: ${name}
@@ -294,13 +305,18 @@ metadata:
 data:
   ${Array.from(ENV_CONFIGS.values())
     .sort()
-    .map((env) => `${env.key}: ${JSON.stringify(env.defaultValue)}`)
+    .map((env) => {
+      let def = env.defaultValue || "";
+      if (typeof def === "object") def = JSON.stringify(def);
+      return `${env.key}: ${JSON.stringify(def)}`;
+    })
     .join("\n  ")}`;
 
   writeFileSync(resolve(path), configMap);
 }
 
-export function exportMD(path: string) {
+/** only support nodejs */
+export function exportMarkdown(path: string): void {
   let tbody = Array.from(ENV_CONFIGS.values())
     .sort()
     .map((env) => {
@@ -309,8 +325,8 @@ export function exportMD(path: string) {
         env.key,
         env.type,
         env.isRequired ? "◎" : "",
-        JSON.stringify(env.defaultValue),
         env.description || "",
+        JSON.stringify(env.defaultValue),
         "",
       ].join(" | ");
     })
@@ -318,8 +334,8 @@ export function exportMD(path: string) {
 
   let content = `# Environment Variables
   
-| name | type | required | default | description |
-| :--- | :--: | :------- | :-----: | :---------: |
+| name | type | required | description | default |
+| :--- | :--: | :------: | :---------- | :------ |
 ${tbody}
 
 `;
