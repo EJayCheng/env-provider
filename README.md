@@ -4,12 +4,12 @@ env-provider is a library that get environment variables.
 
 ## Getting Started
 
-[GitHub](https://github.com/EJayCheng/env-provider) / [npm](https://www.npmjs.com/package/env-provider)
+[GitHub](https://github.com/EJayCheng/env-provider) / [npm](https://www.npmjs.com/package/env-var-provider)
 
-`npm i env-provider --save`
+`npm i env-var-provider --save`
 
 ```typescript
-import { str, int, json } from "env-provider";
+import { str, int, json } from "env-var-provider";
 
 process.env["STR_1"] = "abc";
 console.log(str("ENV_STR")); // "abc"
