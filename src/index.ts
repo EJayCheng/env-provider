@@ -39,6 +39,8 @@ export interface EnvConfig<T = any> {
   maxLength?: number;
   /** verify env for ints, str, strs, array */
   verifyFunction?: EnvVerifyFunction<T>;
+  /** disabled string trim, if `true` will not be trimmed */
+  disabledTrim?: boolean;
 }
 
 function safeJsonParse(data: string, defaultValue?: any) {
@@ -70,6 +72,10 @@ function getFunctionName(): string {
 function verifyEnvByConfig(value: any, config: EnvConfig): any {
   let { key } = config;
   let type = config.type;
+
+  if (!config.disabledTrim && typeof value === "string") {
+    value = value.trim();
+  }
 
   if (config.isRequired && [undefined, ""].includes(value as any)) {
     throw new Error(`Error Env#${key} "isRequired" is invalid: ${value}`);
@@ -184,16 +190,17 @@ export function int(key: string, config: EnvConfig<number> = {}): number {
   return verifyEnvByConfig(value, config);
 }
 
+/** if this environment value is not defined, it will return `config?.defaultValue || ""` */
 export function str(key: string, config: EnvConfig<string> = {}): string {
   setEnvConfig(key, getFunctionName(), config);
-  return verifyEnvByConfig(env(key) || config?.defaultValue, config);
+  return verifyEnvByConfig(env(key) || config?.defaultValue || "", config);
 }
 
 /** a,b,c,,d,5 => ["a", "b", "c", "d", "5"] */
 export function strs(key: string, config: EnvConfig<string[]> = {}): string[] {
   setEnvConfig(key, getFunctionName(), config);
   let value = str(key);
-  if (typeof value !== "string") {
+  if (!value) {
     return verifyEnvByConfig(config?.defaultValue || [], config);
   }
   let array = value
@@ -207,7 +214,7 @@ export function strs(key: string, config: EnvConfig<string[]> = {}): string[] {
 export function ints(key: string, config: EnvConfig<number[]> = {}): number[] {
   setEnvConfig(key, getFunctionName(), config);
   let value = str(key);
-  if (typeof value !== "string") {
+  if (!value) {
     return verifyEnvByConfig(config?.defaultValue || [], config);
   }
   let array = value

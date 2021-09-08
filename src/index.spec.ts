@@ -14,6 +14,10 @@ import {
 
 describe("str", () => {
   it("str 1", () => {
+    process.env["STR_0"] = "    ";
+    expect(str("STR_0")).toEqual("");
+  });
+  it("str 1", () => {
     process.env["STR_1"] = "1";
     expect(str("STR_1")).toEqual("1");
   });
