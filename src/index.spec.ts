@@ -108,6 +108,10 @@ describe("strs", () => {
     process.env["STRS_STRING"] = "a,b,c,,d,5";
     expect(strs("STRS_STRING")).toEqual(["a", "b", "c", "d", "5"]);
   });
+  it("strs json", () => {
+    process.env["STRS_STRING"] = '["a", "b", "c", "d", "5"]';
+    expect(strs("STRS_STRING")).toEqual(["a", "b", "c", "d", "5"]);
+  });
 
   it("strs default", () => {
     expect(strs("STRS_DEFAULT", { defaultValue: ["DEF"] })).toEqual(["DEF"]);

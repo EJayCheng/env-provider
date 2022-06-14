@@ -197,12 +197,20 @@ export function str(key: string, config: EnvConfig<string> = {}): string {
 }
 
 /** a,b,c,,d,5 => ["a", "b", "c", "d", "5"] */
+/** ["a", "b", "c", "d", "5"] => ["a", "b", "c", "d", "5"] */
 export function strs(key: string, config: EnvConfig<string[]> = {}): string[] {
   setEnvConfig(key, getFunctionName(), config);
   let value = str(key);
   if (!value) {
     return verifyEnvByConfig(config?.defaultValue || [], config);
   }
+
+  try {
+    value = JSON.parse(value).join(",");
+  } catch (error) {
+    value = str(key);
+  }
+
   let array = value
     .split(",")
     .map((s) => s.trim())
@@ -217,6 +225,13 @@ export function ints(key: string, config: EnvConfig<number[]> = {}): number[] {
   if (!value) {
     return verifyEnvByConfig(config?.defaultValue || [], config);
   }
+
+  try {
+    value = JSON.parse(value).join(",");
+  } catch (error) {
+    value = str(key);
+  }
+
   let array = value
     .split(",")
     .map((s) => parseInt(s, 10))
@@ -333,7 +348,9 @@ export function exportMarkdown(path: string): void {
         env.type,
         env.isRequired ? "◎" : "",
         env.description || "",
-        JSON.stringify(env.defaultValue),
+        ["ints", "strs"].includes(env.type)
+          ? (env?.defaultValue || []).join(", ")
+          : JSON.stringify(env.defaultValue),
         "",
       ].join(" | ");
     })
