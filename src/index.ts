@@ -1,16 +1,16 @@
-import { writeFileSync } from "fs";
-import { resolve } from "path";
+import { writeFileSync } from 'fs';
+import { resolve } from 'path';
 
 export const ENV_CONFIGS = new Map<string, EnvConfig>();
 
 export type EnvType =
-  | "int"
-  | "ints"
-  | "bool"
-  | "str"
-  | "strs"
-  | "array"
-  | "json";
+  | 'int'
+  | 'ints'
+  | 'bool'
+  | 'str'
+  | 'strs'
+  | 'array'
+  | 'json';
 
 export type EnvVerifyFunction<T = any> = (value: T) => boolean;
 
@@ -52,7 +52,10 @@ function safeJsonParse(data: string, defaultValue?: any) {
 }
 
 function setEnvConfig(key: string, type: string, config: EnvConfig = {}): void {
-  if (ENV_CONFIGS.has(key)) return;
+  if (ENV_CONFIGS.has(key)) {
+    return;
+    throw new Error(`Env config key duplicate: ${key}`);
+  }
   config.key = key;
   config.type = type as EnvType;
   ENV_CONFIGS.set(key, config);
@@ -60,11 +63,11 @@ function setEnvConfig(key: string, type: string, config: EnvConfig = {}): void {
 
 function getFunctionName(): string {
   let err = new Error();
-  let stack = err.stack.split("\n")[2];
+  let stack = err.stack.split('\n')[2];
   try {
     return /at\s(object\.)*(\w+)\s\(/gi.exec(stack)[2];
   } catch (error) {
-    console.error("Error getFunctionName:", stack);
+    console.error('Error getFunctionName:', stack);
     throw error;
   }
 }
@@ -73,94 +76,94 @@ function verifyEnvByConfig(value: any, config: EnvConfig): any {
   let { key } = config;
   let type = config.type;
 
-  if (!config.disabledTrim && typeof value === "string") {
+  if (!config.disabledTrim && typeof value === 'string') {
     value = value.trim();
   }
 
-  if (config.isRequired && [undefined, ""].includes(value as any)) {
+  if (config.isRequired && [undefined, ''].includes(value as any)) {
     throw new Error(`Error Env#${key} "isRequired" is invalid: ${value}`);
   }
 
-  if (typeof config.min === "number") {
-    if (type === "int" && value < config.min) {
+  if (typeof config.min === 'number') {
+    if (type === 'int' && value < config.min) {
       throw new Error(
-        `Error Env#${key} "min: ${config.min}" is invalid: ${value}`
+        `Error Env#${key} "min: ${config.min}" is invalid: ${value}`,
       );
     }
-    if (type === "ints" && value.findIndex((val) => val < config.min) !== -1) {
+    if (type === 'ints' && value.findIndex((val) => val < config.min) !== -1) {
       throw new Error(
-        `Error Env#${key} "min: ${config.min}" is invalid: ${value}`
+        `Error Env#${key} "min: ${config.min}" is invalid: ${value}`,
       );
     }
   }
 
-  if (typeof config.max === "number") {
-    if (type === "int" && value > config.max) {
+  if (typeof config.max === 'number') {
+    if (type === 'int' && value > config.max) {
       throw new Error(
-        `Error Env#${key} "max: ${config.max}" is invalid: ${value}`
+        `Error Env#${key} "max: ${config.max}" is invalid: ${value}`,
       );
     }
-    if (type === "ints" && value.findIndex((val) => val > config.max) !== -1) {
+    if (type === 'ints' && value.findIndex((val) => val > config.max) !== -1) {
       throw new Error(
-        `Error Env#${key} "max: ${config.max}" is invalid: ${value}`
+        `Error Env#${key} "max: ${config.max}" is invalid: ${value}`,
       );
     }
   }
 
   if (config.enum instanceof Array && config.enum.length > 0) {
-    if (["str", "int"].includes(type) && !config.enum.includes(value)) {
+    if (['str', 'int'].includes(type) && !config.enum.includes(value)) {
       throw new Error(
-        `Error Env#${key} "enum: ${config.enum}" is invalid: ${value}`
+        `Error Env#${key} "enum: ${config.enum}" is invalid: ${value}`,
       );
     }
     if (
-      ["strs", "ints", "array"].includes(type) &&
+      ['strs', 'ints', 'array'].includes(type) &&
       value.findIndex((val) => !config.enum.includes(val)) !== -1
     ) {
       throw new Error(
-        `Error Env#${key} "enum: ${config.enum}" is invalid: ${value}`
+        `Error Env#${key} "enum: ${config.enum}" is invalid: ${value}`,
       );
     }
   }
 
   if (config.regexp instanceof RegExp) {
-    if (type === "str" && !config.regexp.test(value)) {
+    if (type === 'str' && !config.regexp.test(value)) {
       throw new Error(
-        `Error Env#${key} "regexp: ${config.regexp}" is invalid: ${value}`
+        `Error Env#${key} "regexp: ${config.regexp}" is invalid: ${value}`,
       );
     }
     if (
-      ["strs", "array"].includes(type) &&
+      ['strs', 'array'].includes(type) &&
       value.findIndex((val) => !config.regexp.test(val)) !== -1
     ) {
       throw new Error(
-        `Error Env#${key} "regexp: ${config.regexp}" is invalid: ${value}`
+        `Error Env#${key} "regexp: ${config.regexp}" is invalid: ${value}`,
       );
     }
   }
 
   if (
-    typeof config.minLength === "number" &&
-    ["str", "strs", "array", "ints"].includes(type) &&
+    typeof config.minLength === 'number' &&
+    ['str', 'strs', 'array', 'ints'].includes(type) &&
     value.length < config.minLength
   ) {
     throw new Error(
-      `Error Env#${key} "minLength: ${config.minLength}" is invalid: ${value}`
+      `Error Env#${key} "minLength: ${config.minLength}" is invalid: ${value}`,
     );
   }
 
   if (
-    typeof config.maxLength === "number" &&
-    ["str", "strs", "array", "ints"].includes(type) &&
+    typeof config.maxLength === 'number' &&
+    ['str', 'strs', 'array', 'ints'].includes(type) &&
     value.length > config.maxLength
   ) {
     throw new Error(
-      `Error Env#${key} "maxLength: ${config.maxLength}" is invalid: ${value}`
+      `Error Env#${key} "maxLength: ${config.maxLength}" is invalid: ${value}`,
     );
   }
 
   if (
-    typeof config.verifyFunction === "function" &&
+    typeof config.verifyFunction === 'function' &&
     !config.verifyFunction(value)
   ) {
     throw new Error(`Error Env#${key} "verifyFunction" is invalid: ${value}`);
@@ -169,12 +172,12 @@ function verifyEnvByConfig(value: any, config: EnvConfig): any {
   return value;
 }
 
-export function env(key: string): string {
+export function env(key: string, defaultValue: string = ''): string {
   try {
-    return process.env[key];
+    return process.env[key] || defaultValue;
   } catch (error) {
     try {
-      return window["env"][key];
+      return window['env'][key] || defaultValue;
     } catch (error) {
       return undefined;
     }
@@ -193,7 +196,7 @@ export function int(key: string, config: EnvConfig<number> = {}): number {
 /** if this environment value is not defined, it will return `config?.defaultValue || ""` */
 export function str(key: string, config: EnvConfig<string> = {}): string {
   setEnvConfig(key, getFunctionName(), config);
-  return verifyEnvByConfig(env(key) || config?.defaultValue || "", config);
+  return verifyEnvByConfig(env(key) || config?.defaultValue || '', config);
 }
 
 /** a,b,c,,d,5 => ["a", "b", "c", "d", "5"] */
@@ -206,13 +209,13 @@ export function strs(key: string, config: EnvConfig<string[]> = {}): string[] {
   }
 
   try {
-    value = JSON.parse(value).join(",");
+    value = JSON.parse(value).join(',');
   } catch (error) {
     value = str(key);
   }
 
   let array = value
-    .split(",")
+    .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
   return verifyEnvByConfig(array, config);
@@ -227,13 +230,13 @@ export function ints(key: string, config: EnvConfig<number[]> = {}): number[] {
   }
 
   try {
-    value = JSON.parse(value).join(",");
+    value = JSON.parse(value).join(',');
   } catch (error) {
     value = str(key);
   }
 
   let array = value
-    .split(",")
+    .split(',')
     .map((s) => parseInt(s, 10))
     .filter((n) => !isNaN(n));
   return verifyEnvByConfig(array, config);
@@ -241,11 +244,11 @@ export function ints(key: string, config: EnvConfig<number[]> = {}): number[] {
 
 export function bool(key: string, config: EnvConfig<boolean> = {}): boolean {
   setEnvConfig(key, getFunctionName(), config);
-  const value = (env(key) + "").toUpperCase();
-  if (value === "" || value === "UNDEFINED" || value === "NULL") {
-    return config?.defaultValue;
+  const value = (env(key) + '').toUpperCase();
+  if (value === '' || value === 'UNDEFINED' || value === 'NULL') {
+    return config?.defaultValue || false;
   }
-  return ["YES", "1", "TRUE", "ON", "Y", "V", "O", "T"].includes(value);
+  return ['YES', '1', 'TRUE', 'ON', 'Y', 'V', 'O', 'T'].includes(value);
 }
 
 export function json(key: string, config: EnvConfig = {}): any {
@@ -262,21 +265,16 @@ export function json(key: string, config: EnvConfig = {}): any {
  */
 export function array(key: string, config: EnvConfig<string[]> = {}): string[] {
   setEnvConfig(key, getFunctionName(), config);
-  let array = [];
-  let zero = str(`${key}_0`);
+  const array = [];
   let index = 0;
-  if (!!zero) {
-    array.push(zero);
-  }
-  index = 1;
   do {
     let value = str(`${key}_${index}`);
-    if (!value) {
-      break;
+    if (!value && index >= 1) break;
+    if (value) {
+      array.push(value);
     }
-    array.push(value);
     index++;
-  } while (1);
+  } while (true);
   if (!array.length) {
     return verifyEnvByConfig(config?.defaultValue || [], config);
   }
@@ -318,7 +316,7 @@ export function exportConfigMap(
   path: string,
   name: string,
   namespace: string,
-  apiVersion: string = "v1"
+  apiVersion: string = 'v1',
 ): void {
   let configMap = `apiVersion: ${apiVersion}
 kind: ConfigMap
@@ -329,11 +327,11 @@ data:
   ${Array.from(ENV_CONFIGS.values())
     .sort()
     .map((env) => {
-      let def = env.defaultValue || "";
-      if (typeof def === "object") def = JSON.stringify(def);
+      let def = env.defaultValue || '';
+      if (typeof def === 'object') def = JSON.stringify(def);
       return `${env.key}: ${JSON.stringify(def)}`;
     })
-    .join("\n  ")}`;
+    .join('\n  ')}`;
 
   writeFileSync(resolve(path), configMap);
 }
@@ -341,21 +339,21 @@ data:
 /** only support nodejs */
 export function exportMarkdown(path: string): void {
   let tbody = Array.from(ENV_CONFIGS.values())
-    .sort()
+    .sort((a, b) => a.key.localeCompare(b.key))
     .map((env) => {
       return [
-        "",
+        '',
         env.key,
         env.type,
-        env.isRequired ? "◎" : "",
-        env.description || "",
-        ["ints", "strs"].includes(env.type)
-          ? (env?.defaultValue || []).join(", ")
+        env.isRequired ? '◎' : '',
+        env.description || '',
+        ['ints', 'strs'].includes(env.type)
+          ? (env?.defaultValue || []).join(', ')
           : JSON.stringify(env.defaultValue),
-        "",
-      ].join(" | ");
+        '',
+      ].join(' | ');
     })
-    .join("\n");
+    .join('\n');
 
   let content = `# Environment Variables
   
