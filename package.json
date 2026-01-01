@@ -1,6 +1,6 @@
 {
   "name": "env-var-provider",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "env-var-provider is a library that get environment variables.",
   "main": "dist/index.js",
   "module": "dist/index.js",
