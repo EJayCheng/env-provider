@@ -264,10 +264,11 @@ export function array(key: string, config: EnvConfig<string[]> = {}): string[] {
   setEnvConfig(key, getFunctionName(), config);
   let array = [];
   let zero = str(`${key}_0`);
-  if (zero) {
+  let index = 0;
+  if (!!zero) {
     array.push(zero);
   }
-  let index = 1;
+  index = 1;
   do {
     let value = str(`${key}_${index}`);
     if (!value) {

@@ -183,22 +183,22 @@ describe("provider", () => {
 
 describe("verifyEnvByConfig", () => {
   it("isRequired invalid", () => {
-    expect(() => str("IS_REQUIRED", { isRequired: true })).toThrowError(Error);
+    expect(() => str("IS_REQUIRED", { isRequired: true })).toThrow();
   });
 
   it("int min invalid", () => {
     process.env["INT_MIN"] = "1";
-    expect(() => int("INT_MIN", { min: 2 })).toThrowError(Error);
+    expect(() => int("INT_MIN", { min: 2 })).toThrow();
   });
 
   it("ints min invalid", () => {
     process.env["INTS_MIN"] = "2,1";
-    expect(() => ints("INTS_MIN", { min: 2 })).toThrowError(Error);
+    expect(() => ints("INTS_MIN", { min: 2 })).toThrow();
   });
 
   it("ints min invalid 2", () => {
     process.env["INTS_MIN_2"] = "0,2,1";
-    expect(() => ints("INTS_MIN_2", { min: 2 })).toThrowError(Error);
+    expect(() => ints("INTS_MIN_2", { min: 2 })).toThrow();
   });
 
   it("ints min valid", () => {
@@ -208,17 +208,17 @@ describe("verifyEnvByConfig", () => {
 
   it("int max invalid", () => {
     process.env["INT_MAX"] = "3";
-    expect(() => int("INT_MAX", { max: 2 })).toThrowError(Error);
+    expect(() => int("INT_MAX", { max: 2 })).toThrow();
   });
 
   it("ints max invalid", () => {
     process.env["INTS_MAX"] = "2,1,4";
-    expect(() => ints("INTS_MAX", { max: 3 })).toThrowError(Error);
+    expect(() => ints("INTS_MAX", { max: 3 })).toThrow();
   });
 
   it("ints max invalid 2", () => {
     process.env["INTS_MAX_2"] = "3,0,1";
-    expect(() => ints("INTS_MAX_2", { max: 2 })).toThrowError(Error);
+    expect(() => ints("INTS_MAX_2", { max: 2 })).toThrow();
   });
 
   it("ints max valid", () => {
@@ -228,9 +228,7 @@ describe("verifyEnvByConfig", () => {
 
   it("str enum invalid", () => {
     process.env["STR_ENUM"] = "DEF";
-    expect(() => str("STR_ENUM", { enum: ["TEST", "WTF"] })).toThrowError(
-      Error
-    );
+    expect(() => str("STR_ENUM", { enum: ["TEST", "WTF"] })).toThrow();
   });
 
   it("str enum valid", () => {
@@ -240,7 +238,7 @@ describe("verifyEnvByConfig", () => {
 
   it("int enum invalid", () => {
     process.env["INT_ENUM"] = "-1";
-    expect(() => int("INT_ENUM", { enum: [1, 0] })).toThrowError(Error);
+    expect(() => int("INT_ENUM", { enum: [1, 0] })).toThrow();
   });
 
   it("int enum valid", () => {
@@ -250,14 +248,12 @@ describe("verifyEnvByConfig", () => {
 
   it("ints enum invalid", () => {
     process.env["INTS_ENUM"] = "1,-1,0";
-    expect(() => ints("INTS_ENUM", { enum: [1, 0] })).toThrowError(Error);
+    expect(() => ints("INTS_ENUM", { enum: [1, 0] })).toThrow();
   });
 
   it("regexp invalid", () => {
     process.env["STR_REGEXP"] = "D E F G";
-    expect(() => str("STR_REGEXP", { regexp: /^d\se\sf$/i })).toThrowError(
-      Error
-    );
+    expect(() => str("STR_REGEXP", { regexp: /^d\se\sf$/i })).toThrow();
   });
 
   it("regexp valid", () => {
@@ -267,7 +263,7 @@ describe("verifyEnvByConfig", () => {
 
   it("strs regexp invalid", () => {
     process.env["STRS_REGEXP"] = "A1,AB,A2,A3";
-    expect(() => strs("STRS_REGEXP", { regexp: /^A\d$/i })).toThrowError(Error);
+    expect(() => strs("STRS_REGEXP", { regexp: /^A\d$/i })).toThrow();
   });
 
   it("minLength valid", () => {
@@ -277,7 +273,7 @@ describe("verifyEnvByConfig", () => {
 
   it("minLength invalid", () => {
     process.env["STR_MIN_LENGTH"] = "abcd";
-    expect(() => str("STR_MIN_LENGTH", { minLength: 5 })).toThrowError(Error);
+    expect(() => str("STR_MIN_LENGTH", { minLength: 5 })).toThrow();
   });
 
   it("maxLength valid", () => {
@@ -287,14 +283,14 @@ describe("verifyEnvByConfig", () => {
 
   it("maxLength invalid", () => {
     process.env["STR_MAX_LENGTH"] = "abcd56";
-    expect(() => str("STR_MAX_LENGTH", { maxLength: 5 })).toThrowError(Error);
+    expect(() => str("STR_MAX_LENGTH", { maxLength: 5 })).toThrow();
   });
 
   it("verifyFunction invalid", () => {
     process.env["STR_FUNCTION"] = "abcd56";
     expect(() =>
       str("STR_FUNCTION", { verifyFunction: () => false })
-    ).toThrowError(Error);
+    ).toThrow();
   });
 
   it("verifyFunction invalid 2", () => {
@@ -305,7 +301,7 @@ describe("verifyEnvByConfig", () => {
           throw new Error("TEST");
         },
       })
-    ).toThrowError(Error);
+    ).toThrow();
   });
 });
 
